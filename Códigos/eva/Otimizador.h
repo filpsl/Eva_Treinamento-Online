@@ -24,6 +24,9 @@ public:
     // 2. Log CSV/Excel (Salva o Relatório para você ler depois)
     // NOVO: Recebe os dados da rodada para gravar no DADOS.txt
     virtual void salvarLog(float dist, float pwm, float erro) = 0;
+    virtual void salvarConvergencia() = 0;
+
+    virtual void apagarDados() = 0;
     
     virtual void imprimirStatus() = 0;
 };

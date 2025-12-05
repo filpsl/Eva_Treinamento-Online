@@ -14,7 +14,7 @@ float Pso::randomFloat(float min, float max) {
 }
 
 void Pso::inicializar() {
-    Serial.println("PSO: Inicializando novo enxame...");
+    Serial.println(F("PSO: Inicializando novo enxame..."));
     
     estado.iteracao_atual = 0;
     estado.particula_atual = 0;
@@ -65,7 +65,7 @@ void Pso::setErroDaRodada(float erro) {
         for (int d = 0; d < NUM_DIMENSOES; d++) {
             estado.gbest_pos[d] = estado.x[i][d];
         }
-        Serial.print("PSO: Novo Gbest encontrado! Erro: ");
+        Serial.print(F("PSO: Novo Gbest encontrado! Erro: "));
         Serial.println(estado.gbest_erro);
     }
     
@@ -111,7 +111,7 @@ void Pso::proximaParticula() {
     if (estado.particula_atual >= NUM_PARTICULAS) {
         estado.particula_atual = 0;
         estado.iteracao_atual++;
-        Serial.print("PSO: Fim da iteração ");
+        Serial.print(F("PSO: Fim da iteração "));
         Serial.println(estado.iteracao_atual);
     }
 }
@@ -124,28 +124,28 @@ bool Pso::isConcluido() {
 
 void Pso::salvarEstado() {
     // Remove arquivo anterior para garantir escrita limpa
-    if (SD.exists(arquivo_sd)) {
-        SD.remove(arquivo_sd);
+    if (SD.exists(DADOS_BIN)) {
+        SD.remove(DADOS_BIN);
     }
 
-    File arquivo = SD.open(arquivo_sd, FILE_WRITE);
+    File arquivo = SD.open(DADOS_BIN, FILE_WRITE);
     if (arquivo) {
         // Escreve a struct inteira como um bloco de bytes
         arquivo.write((uint8_t *)&estado, sizeof(estado));
         arquivo.close();
         // Serial.println("PSO: Checkpoint salvo no SD.");
     } else {
-        Serial.println("PSO ERRO: Falha ao salvar no SD!");
+        Serial.println(F("PSO ERRO: Falha ao salvar no SD!"));
     }
 }
 
 bool Pso::carregarEstado() {
-    if (!SD.exists(arquivo_sd)) {
-        Serial.println("PSO: Nenhum save encontrado. Comecando do zero.");
+    if (!SD.exists(DADOS_BIN)) {
+        Serial.println(F("PSO: Nenhum save encontrado. Comecando do zero."));
         return false;
     }
 
-    File arquivo = SD.open(arquivo_sd, FILE_READ);
+    File arquivo = SD.open(DADOS_BIN, FILE_READ);
     if (arquivo) {
         // Lê os bytes e preenche a struct
         arquivo.read((uint8_t *)&estado, sizeof(estado));
@@ -153,30 +153,30 @@ bool Pso::carregarEstado() {
 
         // Verificação básica de integridade
         if (estado.inicializado) {
-            Serial.println("PSO: Save carregado com sucesso!");
+            Serial.println(F("PSO: Save carregado com sucesso!"));
             imprimirStatus();
             return true;
         }
     }
     
-    Serial.println("PSO: Save corrompido ou invalido.");
+    Serial.println(F("PSO: Save corrompido ou invalido."));
     return false;
 }
 
 void Pso::imprimirStatus() {
-    Serial.print("--- STATUS PSO ---\n");
-    Serial.print("Iteracao: "); Serial.print(estado.iteracao_atual);
-    Serial.print(" | Particula: "); Serial.println(estado.particula_atual);
-    Serial.print("Melhor Erro Global (Gbest): "); Serial.println(estado.gbest_erro);
-    Serial.print("Parametros Gbest (Kp, Ki, Kd): [");
-    Serial.print(estado.gbest_pos[0]); Serial.print(", ");
-    Serial.print(estado.gbest_pos[1]); Serial.print(", ");
-    Serial.print(estado.gbest_pos[2]); Serial.println("]");
+    Serial.print(F("--- STATUS PSO ---\n"));
+    Serial.print(F("Iteracao: ")); Serial.print(estado.iteracao_atual);
+    Serial.print(F(" | Particula: ")); Serial.println(estado.particula_atual);
+    Serial.print(F("Melhor Erro Global (Gbest): ")); Serial.println(estado.gbest_erro);
+    Serial.print(F("Parametros Gbest (Kp, Ki, Kd): ["));
+    Serial.print(estado.gbest_pos[0]); Serial.print(F(", "));
+    Serial.print(estado.gbest_pos[1]); Serial.print(F(", "));
+    Serial.print(estado.gbest_pos[2]); Serial.println(F("]"));
 }
 
 
 void Pso::salvarLog(float distancia, float pwm, float erro) {
-    File dataFile = SD.open("DADOS.txt", FILE_WRITE);
+    File dataFile = SD.open(DADOS, FILE_WRITE);
 
     if (dataFile) {
         // Se arquivo novo, cria cabeçalho
@@ -197,5 +197,62 @@ void Pso::salvarLog(float distancia, float pwm, float erro) {
         dataFile.println(estado.gbest_erro);
 
         dataFile.close();
+    }
+}
+
+
+void Pso::salvarConvergencia(){
+
+    Serial.print(F("Salvando convergência...\n"));
+    File dataFile = SD.open(CONVERGENCIA, FILE_WRITE);
+
+    if (dataFile){
+        Serial.print(F("Abriu o arquivo 'Convergência'!\n"));
+        // Se arquivo novo, cria cabeçalho
+        if(dataFile.size() == 0){
+            dataFile.println("Iteração,Gbest_Erro, Kp, Ki, Kd");
+        }
+
+        dataFile.print(estado.iteracao_atual);
+        dataFile.print(",");
+        dataFile.print(estado.gbest_erro);
+        dataFile.print(",");
+        dataFile.print(estado.gbest_pos[0]);
+        dataFile.print(",");
+        dataFile.print(estado.gbest_pos[1]);
+        dataFile.print(",");
+        dataFile.println(estado.gbest_pos[2]);
+
+        dataFile.close();
+
+        Serial.print(F("Convergência salva!\n"));
+    }
+}
+
+
+void Pso::apagarDados(){
+    
+    Serial.print(F("Procurando arquivo: '"));
+    Serial.print(F(DADOS_BIN)); Serial.print(F("'.\n"));
+    if (SD.exists(DADOS_BIN)){
+        SD.remove(DADOS_BIN);
+        Serial.print(F("Arquivo '"));
+        Serial.print(F(DADOS_BIN)); Serial.print(F("' removido.\n"));
+    }
+
+    Serial.print(F("Procurando arquivo: '"));
+    Serial.print(F(DADOS)); Serial.print(F("'.\n"));
+    if (SD.exists(DADOS)){
+        SD.remove(DADOS);
+        Serial.print(F("Arquivo '"));
+        Serial.print(F(DADOS)); Serial.print(F("' removido.\n"));
+    }
+
+    Serial.print(F("Procurando arquivo: '"));
+    Serial.print(F(CONVERGENCIA)); Serial.print(F("'.\n"));
+    if (SD.exists(CONVERGENCIA)){
+        SD.remove(CONVERGENCIA);
+        Serial.print(F("Arquivo '"));
+        Serial.print(F(CONVERGENCIA)); Serial.print(F("' removido.\n"));
     }
 }

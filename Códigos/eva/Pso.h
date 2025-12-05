@@ -5,6 +5,11 @@
 #include <SD.h>
 #include <Arduino.h>
 
+// Nomes dos arquivos do SD
+#define DADOS_BIN     "pso_data.bin"
+#define CONVERGENCIA  "CONVERG.txt"
+#define DADOS         "DADOS.txt"
+
 // --- CONFIGURAÇÕES DO PSO ---
 #define NUM_PARTICULAS 3
 #define NUM_DIMENSOES 3   // 3 para PID (Kp, Ki, Kd)
@@ -39,7 +44,7 @@ private:
     };
 
     PsoState estado;
-    const char* arquivo_sd = "pso_data.bin";
+
     float erro_da_rodada_atual;
 
     // Métodos privados
@@ -47,6 +52,7 @@ private:
     void limitarPosicao(int p_idx);
 
 public:
+    
     Pso(); // Construtor
     
     // --- Implementação da Interface Otimizador ---
@@ -62,6 +68,9 @@ public:
     
     // Log Legível (Excel/CSV) - A PEÇA QUE FALTAVA
     void salvarLog(float dist, float pwm, float erro) override;
+    void salvarConvergencia() override;
+
+    void apagarDados() override;
     
     // Debug
     void imprimirStatus() override;

@@ -16,9 +16,9 @@ const int PIN_SENSOR  = A0;
 const int PIN_CS_SD   = 4; // Confirmado: Seu CS é o 4!
 
 // --- CONFIGURAÇÕES DO EXPERIMENTO ---
-const unsigned long TEMPO_DE_EXECUCAO_MS = 5000; // 5 segundos de teste por partícula
+const unsigned long TEMPO_DE_EXECUCAO_MS = 10000; // 10 segundos de teste por partícula
 const int SETPOINT_DISTANCIA = 30;               // Queremos manter 30cm
-const int VELOCIDADE_BASE = 65;                  // Velocidade da roda direita (Fixa)
+const int VELOCIDADE_BASE = 140;                  // Velocidade da roda direita (Fixa)
 
 // --- ESTADOS DA MÁQUINA ---
 enum Estado {
@@ -46,7 +46,7 @@ float dist = 0, erro = 0, pid_out = 0;
 float lerDistancia() {
   int leitura = analogRead(PIN_SENSOR);
   // Sua equação calibrada
-  float cm = (0.0005 * leitura * leitura) - (0.3933 * leitura) + 88.718;
+  float cm = ((0.0005 * leitura * leitura) - (0.3933 * leitura) + 88.718) / 2.33;
   if (cm < 10) cm = 10;
   if (cm > 90) cm = 90;
   return cm;
@@ -57,7 +57,7 @@ void pararMotores() {
   analogWrite(PIN_DIR_PWM, 0);
   digitalWrite(PIN_LED, LOW);
 }
-
+// float cm = leitura;
 void acionarMotores(float controlePID) {
   analogWrite(PIN_DIR_PWM, VELOCIDADE_BASE); // Roda Direita Fixa
   
@@ -93,12 +93,12 @@ void setup() {
   pinMode(10, OUTPUT); 
   digitalWrite(10, HIGH); 
 
-  Serial.print("Iniciando SD no pino 4... ");
+  Serial.print(F("Iniciando SD no pino 4... "));
   if (!SD.begin(PIN_CS_SD)) {
-    Serial.println("FALHA!");
+    Serial.println(F("FALHA!"));
     while(1) { piscarLed(100); } // Pisca rápido se falhar
   }
-  Serial.println("OK.");
+  Serial.println(F("OK."));
 
   // Configura Algoritmos
   otimizador = new Pso();   // Cérebro: PSO
@@ -108,6 +108,9 @@ void setup() {
   if (!otimizador->carregarEstado()) {
     otimizador->inicializar(); 
   }
+
+  // Reseta os dados do cartão SD!! CUIDADO!!!
+  // otimizador->apagarDados();
 
   estadoAtual = CONTAGEM;
   tempoInicioEstado = millis();
@@ -133,8 +136,8 @@ void loop() {
         
         otimizador->getParametrosAtuais(Kp, Ki, Kd); // Pega novos Kp, Ki, Kd
         
-        Serial.print("Rodando Particula... PID: ");
-        Serial.print(Kp); Serial.print(" "); Serial.print(Ki); Serial.print(" "); Serial.println(Kd);
+        Serial.print(F("Rodando Particula... PID: "));
+        Serial.print(Kp); Serial.print(F(" ")); Serial.print(Ki); Serial.print(F(" ")); Serial.println(Kd);
         
         estadoAtual = EXECUCAO;
         tempoInicioEstado = millis();
@@ -152,6 +155,9 @@ void loop() {
       }
 
       dist = lerDistancia();
+      Serial.print(F("Distância: "));
+      Serial.print(dist, 4);
+      Serial.println();
       erro = SETPOINT_DISTANCIA - dist;
       
       // O Juiz anota o erro
@@ -186,13 +192,13 @@ void loop() {
     case AVALIACAO:
     {
       float notaFinal = custo->getCustoFinal();
-      Serial.print("Nota da Rodada: "); Serial.println(notaFinal);
+      Serial.print(F("Nota da Rodada: ")); Serial.println(notaFinal);
       
       otimizador->setErroDaRodada(notaFinal); // PSO aprende
       otimizador->proximaParticula();         // Prepara próxima
       
       if (otimizador->isConcluido()) {
-        Serial.println("FIM DO TREINO!");
+        Serial.println(F("FIM DO TREINO!"));
         while(1) piscarLed(2000);
       }
       
@@ -204,6 +210,7 @@ void loop() {
     case SALVAMENTO:
     {
       otimizador->salvarEstado(); // Salva binário (cérebro)
+      otimizador->salvarConvergencia(); // Salva a convergência
       estadoAtual = CONTAGEM;     // Volta para o começo
       tempoInicioEstado = millis();
       break;
