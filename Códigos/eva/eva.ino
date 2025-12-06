@@ -3,6 +3,7 @@
 #include "Otimizador.h"
 #include "Pso.h"
 #include "Custos.h"
+#include "Kalman.h"
 
 // --- PINAGEM DO HARDWARE ---
 const int PIN_ESQ_PWM = 5;
@@ -17,7 +18,7 @@ const int PIN_CS_SD   = 4; // Confirmado: Seu CS é o 4!
 
 // --- CONFIGURAÇÕES DO EXPERIMENTO ---
 const unsigned long TEMPO_DE_EXECUCAO_MS = 10000; // 10 segundos de teste por partícula
-const int SETPOINT_DISTANCIA = 30;               // Queremos manter 30cm
+const int SETPOINT_DISTANCIA = 80;               // Queremos manter 65cm
 const int VELOCIDADE_BASE = 140;                  // Velocidade da roda direita (Fixa)
 
 // --- ESTADOS DA MÁQUINA ---
@@ -36,6 +37,10 @@ unsigned long tempoInicioEstado = 0;
 Otimizador* otimizador = nullptr;
 FuncaoCusto* custo = nullptr;
 
+// --- CRIAÇÃO DO FILTRO KALMAN ---
+// (IncertezaMedicao, IncertezaEstimativa, RuidoProcesso)
+SimpleKalmanFilter filtroDist(2.0, 2.0, 0.01);
+
 // Variáveis de Controle
 float Kp = 0, Ki = 0, Kd = 0;
 float erroAnterior = 0, integralErro = 0;
@@ -46,10 +51,13 @@ float dist = 0, erro = 0, pid_out = 0;
 float lerDistancia() {
   int leitura = analogRead(PIN_SENSOR);
   // Sua equação calibrada
-  float cm = ((0.0005 * leitura * leitura) - (0.3933 * leitura) + 88.718) / 2.33;
-  if (cm < 10) cm = 10;
-  if (cm > 90) cm = 90;
-  return cm;
+  float cm = 10650.08 * pow(leitura,-0.935) - 10;
+  if (cm < 20) cm = 20;
+  if (cm > 100) cm = 100;
+
+  float cm_filtrado = filtroDist.updateEstimate(cm);
+
+  return cm_filtrado;
 }
 
 void pararMotores() {
@@ -102,7 +110,7 @@ void setup() {
 
   // Configura Algoritmos
   otimizador = new Pso();   // Cérebro: PSO
-  custo = new CustoMSE();   // Juiz: Erro Quadrático Médio
+  custo = new CustoITAE();   // Juiz: ITAE
   
   // Recupera treino anterior se houver queda de energia
   if (!otimizador->carregarEstado()) {
@@ -133,6 +141,11 @@ void loop() {
         // Reset para nova rodada
         erroAnterior = 0; integralErro = 0;
         custo->reset();
+
+        // REINICIALIZA O FILTRO COM UMA LEITURA ATUAL
+        // Isso evita que ele comece tentando convergir do zero
+        float leituraInicial = 10650.08 * pow(analogRead(PIN_SENSOR), -0.935) - 10;
+        filtroDist.setEstimate(leituraInicial);
         
         otimizador->getParametrosAtuais(Kp, Ki, Kd); // Pega novos Kp, Ki, Kd
         

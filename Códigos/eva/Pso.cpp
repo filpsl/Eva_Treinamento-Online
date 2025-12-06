@@ -1,3 +1,4 @@
+#include "Print.h"
 #include "Pso.h"
 
 Pso::Pso() {
@@ -78,7 +79,7 @@ void Pso::setErroDaRodada(float erro) {
 
         // Atualiza Velocidade
         // v = w*v + c1*r1*(pbest - x) + c2*r2*(gbest - x)
-        estado.v[i][d] = (W * estado.v[i][d]) + 
+        estado.v[i][d] = (estado.W * estado.v[i][d]) + 
                          (C1 * r1 * (estado.pbest_pos[i][d] - estado.x[i][d])) + 
                          (C2 * r2 * (estado.gbest_pos[d] - estado.x[i][d]));
 
@@ -111,6 +112,7 @@ void Pso::proximaParticula() {
     if (estado.particula_atual >= NUM_PARTICULAS) {
         estado.particula_atual = 0;
         estado.iteracao_atual++;
+        estado.W = estado.W + estado.W_passo;
         Serial.print(F("PSO: Fim da iteração "));
         Serial.println(estado.iteracao_atual);
     }
@@ -181,7 +183,7 @@ void Pso::salvarLog(float distancia, float pwm, float erro) {
     if (dataFile) {
         // Se arquivo novo, cria cabeçalho
         if (dataFile.size() == 0) {
-            dataFile.println("Iteracao,Particula,Distancia,PWM,Erro_Atual,Gbest_Erro");
+            dataFile.println("Iteracao,Particula,Distancia,PWM,Erro_Atual,Gbest_Erro, Passo");
         }
 
         dataFile.print(estado.iteracao_atual);
@@ -194,7 +196,10 @@ void Pso::salvarLog(float distancia, float pwm, float erro) {
         dataFile.print(",");
         dataFile.print(erro);
         dataFile.print(",");
-        dataFile.println(estado.gbest_erro);
+        // dataFile.println(estado.gbest_erro);
+        dataFile.print(estado.gbest_erro);
+        dataFile.print(",");
+        dataFile.println(estado.W);
 
         dataFile.close();
     }
@@ -210,7 +215,7 @@ void Pso::salvarConvergencia(){
         Serial.print(F("Abriu o arquivo 'Convergência'!\n"));
         // Se arquivo novo, cria cabeçalho
         if(dataFile.size() == 0){
-            dataFile.println("Iteração,Gbest_Erro, Kp, Ki, Kd");
+            dataFile.println("Iteração,Gbest_Erro, Kp_best, Ki_best, Kd_best");
         }
 
         dataFile.print(estado.iteracao_atual);
