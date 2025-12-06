@@ -187,19 +187,19 @@ void loop() {
       erroAnterior = erro;
       
       pid_out = P + I + D;
-      Serial.print("PID: ");
-      Serial.print(pid_out);
-      Serial.print(" | P: ");
-      Serial.print(P);
-      Serial.print(" | I: ");
-      Serial.print(I);
-      Serial.print(" | D: ");
-      Serial.print(D);
-      Serial.print(" | Erro: ");
-      Serial.print(erro);
-      Serial.print("\n");
+      // Serial.print("PID: ");
+      // Serial.print(pid_out);
+      // Serial.print(" | P: ");
+      // Serial.print(P);
+      // Serial.print(" | I: ");
+      // Serial.print(I);
+      // Serial.print(" | D: ");
+      // Serial.print(D);
+      // Serial.print(" | Erro: ");
+      // Serial.print(erro);
+      // Serial.print("\n");
 
-      // acionarMotores(pid_out);
+      acionarMotores(pid_out);
       
       // Log para Excel (A cada 50ms para não travar o SD)
       static unsigned long ultimoLog = 0;
