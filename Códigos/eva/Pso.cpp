@@ -33,7 +33,7 @@ void Pso::inicializar() {
             estado.v[i][d] = 0.0; // Velocidade inicial zero
         }
         estado.pbest_erro[i] = 10000000.0; // Erro inicial infinito
-    }
+    } 
     
     estado.inicializado = true;
     salvarEstado(); // Garante que o arquivo exista logo de cara
