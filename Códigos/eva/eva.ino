@@ -18,8 +18,8 @@ const int PIN_CS_SD   = 4; // Confirmado: Seu CS é o 4!
 
 // --- CONFIGURAÇÕES DO EXPERIMENTO ---
 const unsigned long TEMPO_DE_EXECUCAO_MS = 10000; // 10 segundos de teste por partícula
-const int SETPOINT_DISTANCIA = 80;               // Queremos manter 65cm
-const int VELOCIDADE_BASE = 140;                  // Velocidade da roda direita (Fixa)
+const int SETPOINT_DISTANCIA = 50;               // Queremos manter 65cm
+const int VELOCIDADE_BASE = 125;                  // Velocidade da roda direita (Fixa)
 
 // --- ESTADOS DA MÁQUINA ---
 enum Estado {
@@ -39,21 +39,20 @@ FuncaoCusto* custo = nullptr;
 
 // --- CRIAÇÃO DO FILTRO KALMAN ---
 // (IncertezaMedicao, IncertezaEstimativa, RuidoProcesso)
-SimpleKalmanFilter filtroDist(2.0, 2.0, 0.01);
+SimpleKalmanFilter filtroDist(4.0, 2.0, 0.05);
 
 // Variáveis de Controle
 float Kp = 0, Ki = 0, Kd = 0;
 float erroAnterior = 0, integralErro = 0;
 float dist = 0, erro = 0, pid_out = 0;
-
 // --- FUNÇÕES AUXILIARES ---
 
 float lerDistancia() {
   int leitura = analogRead(PIN_SENSOR);
   // Sua equação calibrada
   float cm = 10650.08 * pow(leitura,-0.935) - 10;
-  if (cm < 20) cm = 20;
-  if (cm > 100) cm = 100;
+  if (cm < 35) cm = 35;
+  if (cm > 65) cm = 65;
 
   float cm_filtrado = filtroDist.updateEstimate(cm);
 
@@ -168,9 +167,9 @@ void loop() {
       }
 
       dist = lerDistancia();
-      Serial.print(F("Distância: "));
-      Serial.print(dist, 4);
-      Serial.println();
+      // Serial.print(F("Distância: "));
+      // Serial.print(dist, 4);
+      // Serial.println();
       erro = SETPOINT_DISTANCIA - dist;
       
       // O Juiz anota o erro
@@ -188,7 +187,19 @@ void loop() {
       erroAnterior = erro;
       
       pid_out = P + I + D;
-      acionarMotores(pid_out);
+      Serial.print("PID: ");
+      Serial.print(pid_out);
+      Serial.print(" | P: ");
+      Serial.print(P);
+      Serial.print(" | I: ");
+      Serial.print(I);
+      Serial.print(" | D: ");
+      Serial.print(D);
+      Serial.print(" | Erro: ");
+      Serial.print(erro);
+      Serial.print("\n");
+
+      // acionarMotores(pid_out);
       
       // Log para Excel (A cada 50ms para não travar o SD)
       static unsigned long ultimoLog = 0;
