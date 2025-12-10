@@ -6,7 +6,7 @@ import os
 # --- CONFIGURAÇÕES ---
 PORTA_SERIAL = '/dev/ttyUSB0'  # <--- MUDE ISSO PARA SUA PORTA (No Linux: /dev/ttyUSB0)
 BAUD_RATE = 115200
-PASTA = "exp2" # Onde vai salvar no PC
+PASTA = "exp3" # Onde vai salvar no PC
 
 # Lista de arquivos que você quer baixar do Arduino
 ARQUIVOS_PARA_BAIXAR = [

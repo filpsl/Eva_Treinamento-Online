@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import sys
 
 
-PASTA = 'exp2'
+PASTA = 'exp3'
 # --- CONFIGURAÇÃO ---
 ARQUIVO_ENTRADA = f'{PASTA}/CONVERG.txt'  # Nome do seu arquivo de log
 NOME_DO_GRAFICO = f'{PASTA}/grafico_convergencia.png'

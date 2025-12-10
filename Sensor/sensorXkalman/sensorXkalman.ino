@@ -1,5 +1,4 @@
 #include <SPI.h>
-#include <SD.h>
 
 // --- CLASSE KALMAN FILTER ---
 class SimpleKalmanFilter {
@@ -33,44 +32,10 @@ const int PIN_CS_SD  = 4;     // Seu pino CS
 const char* NOME_ARQUIVO = "DADOS.CSV"; // Nome constante para facilitar
 
 // Instancia o filtro: (IncertezaMedicao, IncertezaEstimativa, RuidoMovimento)
-SimpleKalmanFilter filtroDist(2.0, 2.0, 0.03);
-
-File logFile;
+SimpleKalmanFilter filtroDist(15.0, 2.0, 0.2);
 
 void setup() {
   Serial.begin(115200);
-
-  // --- PREPARAÇÃO DO SD ---
-  pinMode(10, OUTPUT);      
-  digitalWrite(10, HIGH);
-  
-  Serial.print("Iniciando SD... ");
-  if (!SD.begin(PIN_CS_SD)) {
-    Serial.println("FALHA! Verifique as conexoes.");
-    // Pisca o LED do Arduino para avisar erro se não tiver Serial aberto
-    pinMode(LED_BUILTIN, OUTPUT);
-    while(1) { digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN)); delay(200); }
-  } 
-  
-  Serial.println("OK.");
-
-  // --- LIMPEZA DO ARQUIVO ANTIGO (A MÁGICA ACONTECE AQUI) ---
-  if (SD.exists(NOME_ARQUIVO)) {
-    Serial.print("Arquivo antigo encontrado. Apagando... ");
-    SD.remove(NOME_ARQUIVO);
-    Serial.println("Feito!");
-  }
-
-  // --- CRIAÇÃO DO NOVO ARQUIVO ---
-  logFile = SD.open(NOME_ARQUIVO, FILE_WRITE);
-  if (logFile) {
-    // Cabeçalho para o Excel entender as colunas
-    logFile.println("Tempo_ms;Bruto;Kalman");
-    logFile.close();
-    Serial.println("Novo arquivo DADOS.CSV criado com sucesso.");
-  } else {
-    Serial.println("Erro ao criar arquivo!");
-  }
 }
 
 void loop() {
@@ -93,17 +58,6 @@ void loop() {
   Serial.print(","); 
   Serial.print("Kalman:");
   Serial.println(cm_kalman);
-
-  // 4. Salvar no SD
-  logFile = SD.open(NOME_ARQUIVO, FILE_WRITE);
-  if (logFile) {
-    logFile.print(millis());
-    logFile.print(";");
-    logFile.print(cm_bruto); // Use ponto como separador decimal no Arduino, o Excel converte depois
-    logFile.print(";");
-    logFile.println(cm_kalman);
-    logFile.close();
-  }
 
   delay(50); // ~20 leituras por segundo
 }
