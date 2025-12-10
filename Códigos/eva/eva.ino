@@ -18,7 +18,7 @@ const int PIN_CS_SD   = 4; // Confirmado: Seu CS é o 4!
 
 // --- CONFIGURAÇÕES DO EXPERIMENTO ---
 const unsigned long TEMPO_DE_EXECUCAO_MS = 10000; // 10 segundos de teste por partícula
-const int SETPOINT_DISTANCIA = 50;               // Queremos manter 65cm
+const int SETPOINT_DISTANCIA = 65;               // Queremos manter 65cm
 const int VELOCIDADE_BASE = 125;                  // Velocidade da roda direita (Fixa)
 
 // --- ESTADOS DA MÁQUINA ---
@@ -39,7 +39,7 @@ FuncaoCusto* custo = nullptr;
 
 // --- CRIAÇÃO DO FILTRO KALMAN ---
 // (IncertezaMedicao, IncertezaEstimativa, RuidoProcesso)
-SimpleKalmanFilter filtroDist(4.0, 2.0, 0.05);
+SimpleKalmanFilter filtroDist(4.0, 2.0, 0.3);
 
 // Variáveis de Controle
 float Kp = 0, Ki = 0, Kd = 0;
@@ -51,8 +51,8 @@ float lerDistancia() {
   int leitura = analogRead(PIN_SENSOR);
   // Sua equação calibrada
   float cm = 10650.08 * pow(leitura,-0.935) - 10;
-  if (cm < 35) cm = 35;
-  if (cm > 65) cm = 65;
+  if (cm < 40) cm = 40;
+  if (cm > 90) cm = 90;
 
   float cm_filtrado = filtroDist.updateEstimate(cm);
 

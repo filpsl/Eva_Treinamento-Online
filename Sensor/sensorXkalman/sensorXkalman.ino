@@ -32,7 +32,7 @@ const int PIN_CS_SD  = 4;     // Seu pino CS
 const char* NOME_ARQUIVO = "DADOS.CSV"; // Nome constante para facilitar
 
 // Instancia o filtro: (IncertezaMedicao, IncertezaEstimativa, RuidoMovimento)
-SimpleKalmanFilter filtroDist(15.0, 2.0, 0.2);
+SimpleKalmanFilter filtroDist(4.0, 2.0, 0.3);
 
 void setup() {
   Serial.begin(115200);
