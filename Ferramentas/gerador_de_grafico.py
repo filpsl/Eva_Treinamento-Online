@@ -2,12 +2,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
+ALGORITMO = "DE"
+PASTA = 'testede'
 
-PASTA = 'exp3'
 # --- CONFIGURAÇÃO ---
 ARQUIVO_ENTRADA = f'{PASTA}/CONVERG.txt'  # Nome do seu arquivo de log
 NOME_DO_GRAFICO = f'{PASTA}/grafico_convergencia.png'
 NOME_CSV_LIMPO = f'{PASTA}/dados_limpos.csv'
+
+if ALGORITMO == "DE":
+    ARQUIVO_ENTRADA = f'{PASTA}/DE_CONV.txt'
+    NOME_DO_GRAFICO = f'{PASTA}/grafico_convergencia_DE.png'
+    NOME_CSV_LIMPO = f'{PASTA}/dados_limpos_DE.csv'
 
 def gerar_grafico():
     try:

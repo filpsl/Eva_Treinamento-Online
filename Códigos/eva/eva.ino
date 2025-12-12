@@ -2,6 +2,7 @@
 #include <SD.h>
 #include "Otimizador.h"
 #include "Pso.h"
+#include "De.h"
 #include "Custos.h"
 #include "Kalman.h"
 
@@ -108,8 +109,8 @@ void setup() {
   Serial.println(F("OK."));
 
   // Configura Algoritmos
-  otimizador = new Pso();   // Cérebro: PSO
-  custo = new CustoITAE();   // Juiz: ITAE
+  otimizador = new De();   // Cérebro
+  custo = new CustoITAE();   // Juiz
   
   // Recupera treino anterior se houver queda de energia
   if (!otimizador->carregarEstado()) {
@@ -167,9 +168,9 @@ void loop() {
       }
 
       dist = lerDistancia();
-      // Serial.print(F("Distância: "));
-      // Serial.print(dist, 4);
-      // Serial.println();
+      Serial.print(F("Distância: "));
+      Serial.print(dist, 4);
+      Serial.println();
       erro = SETPOINT_DISTANCIA - dist;
       
       // O Juiz anota o erro

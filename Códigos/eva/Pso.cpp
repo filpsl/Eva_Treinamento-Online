@@ -196,10 +196,10 @@ void Pso::salvarLog(float distancia, float pwm, float erro) {
         dataFile.print(",");
         dataFile.print(erro);
         dataFile.print(",");
-        // dataFile.println(estado.gbest_erro);
-        dataFile.print(estado.gbest_erro);
-        dataFile.print(",");
-        dataFile.println(estado.W);
+        dataFile.println(estado.gbest_erro);
+        // dataFile.print(estado.gbest_erro);
+        // dataFile.print(",");
+        // dataFile.println(estado.W);
 
         dataFile.close();
     }

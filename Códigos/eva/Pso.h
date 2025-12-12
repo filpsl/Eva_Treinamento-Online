@@ -2,6 +2,7 @@
 #define PSO_H
 
 #include "Otimizador.h"
+#include "config.h"
 #include <SD.h>
 #include <Arduino.h>
 
@@ -9,19 +10,6 @@
 #define DADOS_BIN     "pso_data.bin"
 #define CONVERGENCIA  "CONVERG.txt"
 #define DADOS         "DADOS.txt"
-
-// --- CONFIGURAÇÕES DO PSO ---
-#define NUM_PARTICULAS 7
-#define NUM_DIMENSOES 3   // 3 para PID (Kp, Ki, Kd)
-#define MAX_ITERACOES 50
-
-// Limites dos parâmetros PID
-#define KP_MIN 1.0
-#define KP_MAX 5.0
-#define KI_MIN 0.0
-#define KI_MAX 2.0
-#define KD_MIN 0.0
-#define KD_MAX 1.0
 
 // Constantes do PSO
 #define C1 1.5    // Cognitivo

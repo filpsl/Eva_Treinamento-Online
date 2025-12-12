@@ -6,7 +6,7 @@ import os
 # --- CONFIGURAÇÕES ---
 PORTA_SERIAL = '/dev/ttyUSB0'  # <--- MUDE ISSO PARA SUA PORTA (No Linux: /dev/ttyUSB0)
 BAUD_RATE = 115200
-PASTA = "exp3" # Onde vai salvar no PC
+PASTA = "testede" # Onde vai salvar no PC
 
 # Lista de arquivos que você quer baixar do Arduino
 ARQUIVOS_PARA_BAIXAR = [
@@ -14,6 +14,12 @@ ARQUIVOS_PARA_BAIXAR = [
     "pso_data.bin",
     "CONVERG.txt" # Adicione outros se precisar
 ]
+
+# ARQUIVOS_PARA_BAIXAR = [
+#     "DE_DADOS.txt",
+#     "de_data.bin",
+#     "DE_CONV.txt" # Adicione outros se precisar
+# ]
 
 def conectar_arduino():
     try:
