@@ -52,10 +52,10 @@ float lerDistancia() {
   int leitura = analogRead(PIN_SENSOR);
   // Sua equação calibrada
   float cm = 10650.08 * pow(leitura,-0.935) - 10;
-  if (cm < 40) cm = 40;
-  if (cm > 90) cm = 90;
-
   float cm_filtrado = filtroDist.updateEstimate(cm);
+
+  if (cm_filtrado < 40) cm_filtrado = 40;
+  if (cm_filtrado > 90) cm_filtrado = 90;
 
   return cm_filtrado;
 }

@@ -16,7 +16,7 @@ const int VELOCIDADE_BASE = 125;
 SimpleKalmanFilter filtroDist(4.0, 2.0, 0.3);
 
 // Variáveis de Controle
-float Kp = 4.13, Ki = 0.2, Kd = 0.49;
+float Kp = 4.91, Ki = 1.84, Kd = 0.61;
 float erroAnterior = 0, integralErro = 0;
 float dist = 0, erro = 0, pid_out = 0;
 

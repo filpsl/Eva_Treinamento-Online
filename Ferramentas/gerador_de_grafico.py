@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import sys
 
 ALGORITMO = "DE"
-PASTA = 'testede'
+PASTA = 'exp5_de'
 
 # --- CONFIGURAÇÃO ---
 ARQUIVO_ENTRADA = f'{PASTA}/CONVERG.txt'  # Nome do seu arquivo de log
